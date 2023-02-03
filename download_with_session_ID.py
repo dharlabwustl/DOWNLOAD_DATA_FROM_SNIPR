@@ -6,13 +6,13 @@ import glob
 import re
 import requests
 import pandas as pd
-import nibabel as nib
+# import nibabel as nib
 # import pydicom as dicom
 import pathlib
 from xnatSession import XnatSession
 catalogXmlRegex = re.compile(r'.*\.xml$')
-XNAT_HOST_URL='https://snipr.wustl.edu'
-XNAT_HOST = XNAT_HOST_URL # os.environ['XNAT_HOST'] #
+# XNAT_HOST_URL='https://snipr.wustl.edu'
+XNAT_HOST =os.environ['XNAT_HOST'] #  XNAT_HOST_URL #
 XNAT_USER = os.environ['XNAT_USER']#
 XNAT_PASS =os.environ['XNAT_PASS'] # 
 def combinecsvs(inputdirectory,outputdirectory,outputfilename,extension):
@@ -427,6 +427,23 @@ def downloadresourcefilewithuri_py(url,dir_to_save):
             if chunk:  # filter out keep-alive new chunks
                 f.write(chunk)
     xnatSession.close_httpsession()
+
+def downloadresourcefilewithuri_name_py(url,name,dir_to_save):
+    xnatSession = XnatSession(username=XNAT_USER, password=XNAT_PASS, host=XNAT_HOST)
+    xnatSession.renew_httpsession()
+    response = xnatSession.httpsess.get(xnatSession.host + url)
+    zipfilename=os.path.join(dir_to_save,name) #sessionId+scanId+'.zip'
+    with open(zipfilename, "wb") as f:
+        for chunk in response.iter_content(chunk_size=512):
+            if chunk:  # filter out keep-alive new chunks
+                f.write(chunk)
+    xnatSession.close_httpsession()
+def call_downloadresourcefilewithuri_name_py():
+    url=sys.argv[1]
+    name=sys.argv[2]
+    dir_to_save=sys.argv[3]
+    downloadresourcefilewithuri_name_py(url,name,dir_to_save)
+
     
 def downloadniftiwithuri(URI_name,dir_to_save):
     xnatSession = XnatSession(username=XNAT_USER, password=XNAT_PASS, host=XNAT_HOST)
@@ -459,7 +476,23 @@ def get_resourcefiles_metadata(URI,resource_dir):
     xnatSession.close_httpsession()
     metadata_masks=response.json()['ResultSet']['Result']
     return metadata_masks
-
+def get_resourcefiles_metadata_as_csv(URI,resource_dir):
+    url = (URI+'/resources/' + resource_dir +'/files?format=json')
+    print(url)
+    xnatSession = XnatSession(username=XNAT_USER, password=XNAT_PASS, host=XNAT_HOST)
+    xnatSession.renew_httpsession()
+    response = xnatSession.httpsess.get(xnatSession.host + url)
+    xnatSession.close_httpsession()
+    metadata_masks=response.json()['ResultSet']['Result']
+    jsonStr = json.dumps(metadata_masks)
+    # print(jsonStr)
+    df = pd.read_json(jsonStr)
+    df.to_csv(os.path.basename(URI)+'_'+resource_dir+'metadata.csv',index=False)
+    return metadata_masks
+def call_get_resourcefiles_metadata_as_csv():
+    URI=sys.argv[1]
+    resource_dir=sys.argv[2]
+    get_resourcefiles_metadata_as_csv(URI,resource_dir)
 def findthetargetscan():
      target_scan=""
      ## find the list of usable scans
@@ -563,6 +596,23 @@ def copy_nifti():
 
 def get_slice_idx(nDicomFiles):
     return min(nDicomFiles-1, math.ceil(nDicomFiles*0.7)) # slice 70% through the brain
+
+def get_metadata_session_as_csv(sessionId):
+    url = ("/data/experiments/%s/scans/?format=json" %    (sessionId))
+    xnatSession = XnatSession(username=XNAT_USER, password=XNAT_PASS, host=XNAT_HOST)
+    xnatSession.renew_httpsession()
+    response = xnatSession.httpsess.get(xnatSession.host + url)
+    xnatSession.close_httpsession()
+    this_session_metadata=response.json()['ResultSet']['Result']
+    # print(this_session_metadata)
+    jsonStr = json.dumps(this_session_metadata)
+# print(jsonStr)
+    df = pd.read_json(jsonStr)
+    df.to_csv(sessionId+'metadata.csv',index=False)
+    # return metadata_session
+def call_get_metadata_session_as_csv():
+    sessionId=sys.argv[1]
+    get_metadata_session_as_csv(sessionId)
 
 def get_metadata_session(sessionId):
     url = ("/data/experiments/%s/scans/?format=json" %    (sessionId))
