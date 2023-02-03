@@ -1,5 +1,4 @@
 #!/bin/bash
-echo "ATUL"
 
 get_metadata_session_as_csv() {
 echo " I AM IN copy_masks_data "
@@ -43,6 +42,7 @@ call_downloadresourcefilewithuri_name_py()" ${url} ${filename} ${dir_to_save}  #
 sessionId=SNIPR_E03517
 get_metadata_session_as_csv $sessionId
 ################### FOR DICOM ###############################
+######## LEARN HOW TO READ DATA FROM CSV with BASH
 URI='/data/experiments/SNIPR_E03517/scans/2'
 resource_dir='DICOM'
 get_metadata_scanresources_as_csv ${URI} ${resource_dir}
