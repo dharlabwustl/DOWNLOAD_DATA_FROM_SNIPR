@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bashqq
 
 get_metadata_session_as_csv() {
 echo " I AM IN copy_masks_data "
