@@ -98,5 +98,5 @@
 
     # firefox https://wiki.xnat.org/documentation/xnat-developer-documentation/working-with-xnat-plugins/developing-xnat-plugins/xnat-data-type-development &
 
-subject_id=SNIPR02_S00038
-curl  -u   $XNAT_USER:$XNAT_PASS  -X GET   'https://snipr.wustl.edu/app/action/XDATActionRouter/xdataction/xml_file/search_element/xnat%3AsubjectData/search_field/xnat%3AsubjectData.ID/search_value/'${subject_id}'/popup/false/project/WashU' >> test.xml
+#subject_id=SNIPR02_S00038
+#curl  -u   $XNAT_USER:$XNAT_PASS  -X GET   'https://snipr.wustl.edu/app/action/XDATActionRouter/xdataction/xml_file/search_element/xnat%3AsubjectData/search_field/xnat%3AsubjectData.ID/search_value/'${subject_id}'/popup/false/project/WashU' >> test.xml
